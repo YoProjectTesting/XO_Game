@@ -9,6 +9,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.hackeru.class_ontouchevent.MainActivity_onTouch;
 import com.example.hackeru.class_ontouchevent.my_point_XO;
@@ -28,13 +29,12 @@ public class draw_XO_Game_vsComp extends View {
     List<my_point_XO> list_of_points = new ArrayList<my_point_XO>();
     my_point_XO mp1;
     Paint[] paintPlayer = new Paint[2];
-    Random r = new Random();
-    int firstPlay = r.nextInt(2);
+    static Random r = new Random();
+    static int firstPlay = r.nextInt(2);
     int curentPlay=firstPlay;
+    String apearWinner="false";Boolean WAIT=false;
     int compPlayerNum = 1;//Player-RED-1   vs   Computer-BLUE-5
-    public static Context getActivity() {
-        return getActivity();
-    }
+
     public draw_XO_Game_vsComp(Context context, int width, int height) {
         super(context);
         this.width = width;
@@ -54,7 +54,6 @@ public class draw_XO_Game_vsComp extends View {
         XO_background_task XO_back=new XO_background_task();
         XO_back.execute();
     }
-
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -79,11 +78,30 @@ public class draw_XO_Game_vsComp extends View {
 
 //filled sells
         try {
+            if(!apearWinner.equals("false")){
+                switch(apearWinner){
+                    case "RED":
+                        Log.d("debugTag", "line num " + Thread.currentThread().getStackTrace()[2].getLineNumber() + " The RED player won!!! ");
+                        Toast.makeText(getContext(), "The RED player won!!!", Toast.LENGTH_SHORT).show();
+                        break;
+                    case "BLUE":
+                        Log.d("debugTag", "line num " + Thread.currentThread().getStackTrace()[2].getLineNumber() + " The BLUE player won!!! ");
+                        Toast.makeText(getContext(), "The BLUE player won!!!", Toast.LENGTH_SHORT).show();
+                        break;
+                    case "TEKO":
+                        Log.d("debugTag", "line num " + Thread.currentThread().getStackTrace()[2].getLineNumber() + " The TEKO!!! ");
+                        Toast.makeText(getContext(), "The TEKO !!!", Toast.LENGTH_SHORT).show();
+                        break;
+                }
+                GamePlayerVsPlayerEngine.clearGame(list_of_points, sheet,firstPlay);
+                apearWinner="false";
+            }
             for (int i = 0; i < list_of_points.size(); i++) {
                  centerX = list_of_points.get(i).getX();
                  centerY = list_of_points.get(i).getY();
                 canvas.drawCircle(centerX, centerY, 100, list_of_points.get(i).getP());
             }
+
 
         } catch (Exception e) {
             Log.d("debugTag", this.getClass()+" line num " + Thread.currentThread().getStackTrace()[2].getLineNumber()+"  Msg: "+e.getMessage());
@@ -99,7 +117,8 @@ public class draw_XO_Game_vsComp extends View {
             case MotionEvent.ACTION_DOWN:
                 cx = event.getX();
                 cy = event.getY();
-                if(cx>0.05 * width&&cx<0.95 * width&&cy>0.15 * height&&cy<0.75 * height){
+                if(cx>0.05 * width&&cx<0.95 * width&&cy>0.15 * height&&cy<0.75 * height)
+                if(!WAIT){
                     x = (int) ((cx - (0.05 * width)) / (0.30 * width));
                     y = (int) ((cy - (0.15 * height)) / (0.20 * height));
                     if(sheet[x][y]==0){
@@ -139,17 +158,20 @@ public class draw_XO_Game_vsComp extends View {
                         e.printStackTrace();
                     }
                     try {
-                        if(GamePlayerVsPlayerEngine.checkWinner(getContext(),sheet)){
-                            GamePlayerVsPlayerEngine.clearGame(list_of_points, sheet,firstPlay);
+                        if(!(apearWinner=GamePlayerVsPlayerEngine.checkWinner(sheet)).equals("false")){
                             try {
+                                WAIT=true;
                                 Thread.sleep(3000);
+                                WAIT=false;
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
+                            Log.d("debugTag", " apearWinner.equals(\"RED\")   " + apearWinner.equals("RED")  + "   line num " + Thread.currentThread().getStackTrace()[2].getLineNumber()  );
+
                         }else{
 
                             if(curentPlay==compPlayerNum){
-                                PlayerVsComputer.computerXO(sheet,compPlayerNum,XY,firstPlay);
+                                PlayerVsComputer.computerXO(sheet,compPlayerNum,XY);
                                 sheet[XY[0]][XY[1]]=(compPlayerNum == 0) ? 1 : 5;
                                 fixedX=(float)(XY[0]*(0.30 * width)+(0.20 * width));
                                 fixedY=(float)(XY[1]*(0.20 * height)+(0.25 * height));
@@ -161,17 +183,19 @@ public class draw_XO_Game_vsComp extends View {
                                 Log.d("debugTag", "  compPlayerNum  " + compPlayerNum + " XY[0] " + XY[0] + "   XY[1] " +XY[1] +"    line num " + Thread.currentThread().getStackTrace()[2].getLineNumber()  );
                                 curentPlay=(curentPlay == 1) ? 0 : 1;
                             }
-                            if(GamePlayerVsPlayerEngine.checkWinner(getContext(),sheet)){
-                                GamePlayerVsPlayerEngine.clearGame(list_of_points, sheet,firstPlay);
+                            if(!(apearWinner=GamePlayerVsPlayerEngine.checkWinner(sheet)).equals("false")){
                                 try {
+                                    WAIT=true;
                                     Thread.sleep(3000);
+                                    WAIT=false;
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
+                                Log.d("debugTag", " apearWinner.equals(\"BLUE\")   " + apearWinner.equals("BLUE")  + "   line num " + Thread.currentThread().getStackTrace()[2].getLineNumber()  );
                             }
                         }
                     } catch (Exception e) {
-                        Log.d("debugTag", "  e.printStackTrace()  " + e.getMessage()  + "   line num " + Thread.currentThread().getStackTrace()[2].getLineNumber()  );
+                        Log.d("debugTag", "  getMessage   " + e.getMessage()  + "   line num " + Thread.currentThread().getStackTrace()[2].getLineNumber()  );
                         e.printStackTrace();
                     }
                     publishProgress();
@@ -185,10 +209,6 @@ public class draw_XO_Game_vsComp extends View {
             invalidate();
         }
 
-        @Override
-        protected void onPostExecute(Integer integer) {
-            super.onPostExecute(integer);
 
-        }
     }
 }

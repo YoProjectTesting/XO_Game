@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.hackeru.class_ontouchevent.my_point_XO;
 
@@ -28,6 +29,8 @@ public class draw_XO_Game extends View {
     Random r = new Random();
     int nextPlay = r.nextInt(1);
     int firstPlay=nextPlay;
+    String apearWinner="false";
+
 
     public draw_XO_Game(Context context, int width, int height) {
         super(context);
@@ -64,7 +67,26 @@ public class draw_XO_Game extends View {
         canvas.drawLine((float) 0.65 * width, (float) 0.15 * height, (float) 0.65 * width, (float) 0.75 * height, gameSheet);
         canvas.drawLine((float) 0.05 * width, (float) 0.35 * height, (float) 0.95 * width, (float) 0.35 * height, gameSheet);
         canvas.drawLine((float) 0.05 * width, (float) 0.55 * height, (float) 0.95 * width, (float) 0.55 * height, gameSheet);
+
 //filled sells
+        if(!apearWinner.equals("false")){
+            switch(apearWinner){
+                case "RED":
+                    Log.d("debugTag", "line num " + Thread.currentThread().getStackTrace()[2].getLineNumber() + " The RED player won!!! ");
+                    Toast.makeText(getContext(), "The RED player won!!!", Toast.LENGTH_SHORT).show();
+                    break;
+                case "BLUE":
+                    Log.d("debugTag", "line num " + Thread.currentThread().getStackTrace()[2].getLineNumber() + " The BLUE player won!!! ");
+                    Toast.makeText(getContext(), "The BLUE player won!!!", Toast.LENGTH_SHORT).show();
+                    break;
+                case "TEKO":
+                    Log.d("debugTag", "line num " + Thread.currentThread().getStackTrace()[2].getLineNumber() + " The TEKO!!! ");
+                    Toast.makeText(getContext(), "The TEKO !!!", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+            GamePlayerVsPlayerEngine.clearGame(list_of_points, sheet,firstPlay);
+            apearWinner="false";
+        }
         for (int i = 0; i < list_of_points.size(); i++) {
             float centerX = list_of_points.get(i).getX();
             float centerY = list_of_points.get(i).getY();
@@ -120,14 +142,13 @@ public class draw_XO_Game extends View {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    if(GamePlayerVsPlayerEngine.checkWinner(getContext(),sheet)){
-                        GamePlayerVsPlayerEngine.clearGame(list_of_points, sheet,firstPlay);
+
+                    if(!(apearWinner=GamePlayerVsPlayerEngine.checkWinner(sheet)).equals("false")){
                         try {
                             Thread.sleep(3000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        publishProgress();
                     }
                     publishProgress();
                 }

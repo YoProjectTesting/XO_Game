@@ -8,10 +8,8 @@ import java.util.Random;
  * Created by Yoel on 03.11.2015.
  */
 public class PlayerVsComputer {
-    static int firstPlay;
 
-    public static void computerXO(int[][] sheet, int compPlayerNum,int[] XY,int firstPlay) {
-        PlayerVsComputer.firstPlay=firstPlay;
+    public static void computerXO(int[][] sheet, int compPlayerNum,int[] XY) {
         if(!checkAbilityToWin(sheet,compPlayerNum,XY))
             if(!protectRisk(sheet,compPlayerNum,XY))
                 smartRandom(sheet,XY);
@@ -19,12 +17,14 @@ public class PlayerVsComputer {
 
     public static boolean checkTrickRisk(int[][] sheet,int[] XY){
         int sum=0,counter=0;Random r=new Random();int []temp=new int[4];
+        Log.d("debugTag","   checkTrickRisk Begin "+ "line num " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+
         for (int i = 0; i <3 ; i++) {
             for (int j = 0; j < 3; j++) {
                 sum+=sheet[i][j];
             }
         }
-        if((sum==7&&PlayerVsComputer.firstPlay==0)&&(sheet[0][1]==0&&sheet[1][0]==0&&sheet[2][1]==0&&sheet[1][2]==0)){
+        if((sum==7&&draw_XO_Game_vsComp.firstPlay==0)&&(sheet[0][1]==0&&sheet[1][0]==0&&sheet[2][1]==0&&sheet[1][2]==0)){
             if(sheet[0][1]==0)temp[counter++]=0;
             if(sheet[1][0]==0)temp[counter++]=1;
             if(sheet[1][2]==0)temp[counter++]=2;
@@ -36,6 +36,7 @@ public class PlayerVsComputer {
                     case 2:{XY[0]=1;XY[1]=2;}break;
                     case 3:{XY[0]=2;XY[1]=1;}break;
                 }
+                Log.d("debugTag","checkTrickRisk true:  firstPlay  "+draw_XO_Game_vsComp.firstPlay+ "line num " + Thread.currentThread().getStackTrace()[2].getLineNumber());
                 return true;
             }
         }
@@ -49,20 +50,21 @@ public class PlayerVsComputer {
 
     public static boolean checkCorners(int[][] sheet,int[] XY){
         int counter=0;Random r=new Random();int []temp=new int[4];
+        Log.d("debugTag", "  checkCorners BEGIN");
         try {
             if(sheet[0][0]==0){temp[counter]=0;counter++;}
             if(sheet[2][0]==0){temp[counter]=1;counter++;}
             if(sheet[0][2]==0){temp[counter]=2;counter++;}
             if(sheet[2][2]==0){temp[counter]=3;counter++;}
             if(counter>0){
-                switch(temp[r.nextInt(counter-1)]){
+                int rand=r.nextInt(counter);
+                Log.d("debugTag", " rand:  "+rand+" counter:  "+counter+" temp[rand]:  "+temp[rand]+"   checkCorners TRUE: XY  "+XY[0]+"  " +XY[1]);
+                switch(temp[rand]){
                     case 0:{XY[0]=0;XY[1]=0;}break;
                     case 1:{XY[0]=2;XY[1]=0;}break;
                     case 2:{XY[0]=0;XY[1]=2;}break;
                     case 3:{XY[0]=2;XY[1]=2;}break;
                 }
-                Log.d("debugTag", "  checkCorners  XY  "+XY[0]+"  " +XY[1]);
-
                 return true;
             }
         } catch (Exception e) {
@@ -74,20 +76,21 @@ public class PlayerVsComputer {
 
     public static boolean checkRest(int[][] sheet,int[] XY){
         int counter=0;Random r=new Random();int []temp=new int[4];
+        Log.d("debugTag", " checkRest  Begin");
         try {
             if(sheet[0][1]==0){temp[counter]=0;counter++;}
             if(sheet[1][0]==0){temp[counter]=1;counter++;}
             if(sheet[1][2]==0){temp[counter]=2;counter++;}
             if(sheet[2][1]==0){temp[counter]=3;counter++;}
             if(counter>0){
-                switch(temp[r.nextInt(counter-1)]){
+                int rand=r.nextInt(counter);
+                Log.d("debugTag", " rand:  "+rand+"   checkRest TRUE: XY  "+XY[0]+"  " +XY[1]);
+                switch(temp[rand]){
                     case 0:{XY[0]=0;XY[1]=1;}break;
                     case 1:{XY[0]=1;XY[1]=0;}break;
                     case 2:{XY[0]=1;XY[1]=2;}break;
                     case 3:{XY[0]=2;XY[1]=1;}break;
                 }
-                Log.d("debugTag", " checkRest  XY  "+XY[0]+"  " +XY[1]);
-
                 return true;
             }
         } catch (Exception e) {
