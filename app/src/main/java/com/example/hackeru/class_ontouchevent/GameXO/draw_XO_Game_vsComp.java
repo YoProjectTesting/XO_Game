@@ -4,10 +4,13 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.AsyncTask;
+import android.os.Message;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.example.hackeru.class_ontouchevent.MainActivity_onTouch;
 import com.example.hackeru.class_ontouchevent.my_point_XO;
 
 import java.util.ArrayList;
@@ -26,17 +29,18 @@ public class draw_XO_Game_vsComp extends View {
     my_point_XO mp1;
     Paint[] paintPlayer = new Paint[2];
     Random r = new Random();
-    int firstPlay =1;// r.nextInt(2);
-    int compPlayerNum = 1;
-
+    int firstPlay = r.nextInt(2);
+    int curentPlay=firstPlay;
+    int compPlayerNum = 1;//Player-RED-1   vs   Computer-BLUE-5
+    public static Context getActivity() {
+        return getActivity();
+    }
     public draw_XO_Game_vsComp(Context context, int width, int height) {
         super(context);
         this.width = width;
         this.height = height;
-        for (int i = 0; i < 100; i++) {
-            Log.d("debugTag", ""+ r.nextInt(2));
 
-        }
+      //Paint Initialization
         paintPlayer[0] = new Paint();
         paintPlayer[0].setColor(Color.RED);
         paintPlayer[1] = new Paint();
@@ -47,43 +51,31 @@ public class draw_XO_Game_vsComp extends View {
                 sheet[i][j]=0;
             }
         }
-        if(compPlayerNum==firstPlay){
-            PlayerVsComputer.computerXO(sheet,compPlayerNum,XY);
-            sheet[XY[0]][XY[1]]=(compPlayerNum == 0) ? 1 : 5;
-            fixedX=(float)(XY[0]*(0.30 * width)+(0.20 * width));
-            fixedY=(float)(XY[1]*(0.20 * height)+(0.25 * height));
-            mp1 = new my_point_XO(fixedX, fixedY, paintPlayer[compPlayerNum]);
-            list_of_points.add(mp1);
-            Log.d("debugTag", ""+sheet[0][0]+sheet[1][0]+sheet[2][0]);
-            Log.d("debugTag", ""+sheet[0][1]+sheet[1][1]+sheet[2][1]);
-            Log.d("debugTag", ""+sheet[0][2]+sheet[1][2]+sheet[2][2]);
-
-            Log.d("debugTag", "  compPlayerNum  " + compPlayerNum + " firstPlay " + firstPlay+ " x " + x + "   y " + y);
-
-        }
-
-
+        XO_background_task XO_back=new XO_background_task();
+        XO_back.execute();
     }
+
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
 //sheet of Game
-        Paint gameSheet = new Paint();
-        gameSheet.setColor(Color.RED);
-        gameSheet.setStrokeWidth(10);
-        //external
-        canvas.drawLine((float) 0.05 * width, (float) 0.15 * height, (float) 0.05 * width, (float) 0.75 * height, gameSheet);
-        canvas.drawLine((float) 0.05 * width, (float) 0.15 * height, (float) 0.95 * width, (float) 0.15 * height, gameSheet);
-        canvas.drawLine((float) 0.95 * width, (float) 0.15 * height, (float) 0.95 * width, (float) 0.75 * height, gameSheet);
-        canvas.drawLine((float) 0.05 * width, (float) 0.75 * height, (float) 0.95 * width, (float) 0.75 * height, gameSheet);
-        //internal
-        canvas.drawLine((float) 0.35 * width, (float) 0.15 * height, (float) 0.35 * width, (float) 0.75 * height, gameSheet);
-        canvas.drawLine((float) 0.65 * width, (float) 0.15 * height, (float) 0.65 * width, (float) 0.75 * height, gameSheet);
-        canvas.drawLine((float) 0.05 * width, (float) 0.35 * height, (float) 0.95 * width, (float) 0.35 * height, gameSheet);
-        canvas.drawLine((float) 0.05 * width, (float) 0.55 * height, (float) 0.95 * width, (float) 0.55 * height, gameSheet);
-
+        {
+            Paint gameSheet = new Paint();
+            gameSheet.setColor(Color.RED);
+            gameSheet.setStrokeWidth(10);
+            //external
+            canvas.drawLine((float) 0.05 * width, (float) 0.15 * height, (float) 0.05 * width, (float) 0.75 * height, gameSheet);
+            canvas.drawLine((float) 0.05 * width, (float) 0.15 * height, (float) 0.95 * width, (float) 0.15 * height, gameSheet);
+            canvas.drawLine((float) 0.95 * width, (float) 0.15 * height, (float) 0.95 * width, (float) 0.75 * height, gameSheet);
+            canvas.drawLine((float) 0.05 * width, (float) 0.75 * height, (float) 0.95 * width, (float) 0.75 * height, gameSheet);
+            //internal
+            canvas.drawLine((float) 0.35 * width, (float) 0.15 * height, (float) 0.35 * width, (float) 0.75 * height, gameSheet);
+            canvas.drawLine((float) 0.65 * width, (float) 0.15 * height, (float) 0.65 * width, (float) 0.75 * height, gameSheet);
+            canvas.drawLine((float) 0.05 * width, (float) 0.35 * height, (float) 0.95 * width, (float) 0.35 * height, gameSheet);
+            canvas.drawLine((float) 0.05 * width, (float) 0.55 * height, (float) 0.95 * width, (float) 0.55 * height, gameSheet);
+        }
 
 //filled sells
         try {
@@ -93,9 +85,6 @@ public class draw_XO_Game_vsComp extends View {
                 canvas.drawCircle(centerX, centerY, 100, list_of_points.get(i).getP());
             }
 
-            if(GamePlayerVsPlayerEngine.checkWinner(sheet, getContext())){
-                GamePlayerVsPlayerEngine.clearGame(list_of_points, sheet,firstPlay);
-            }
         } catch (Exception e) {
             Log.d("debugTag", this.getClass()+" line num " + Thread.currentThread().getStackTrace()[2].getLineNumber()+"  Msg: "+e.getMessage());
         }
@@ -107,7 +96,6 @@ public class draw_XO_Game_vsComp extends View {
         int action = event.getActionMasked();
 
         switch (action) {
-
             case MotionEvent.ACTION_DOWN:
                 cx = event.getX();
                 cy = event.getY();
@@ -123,22 +111,9 @@ public class draw_XO_Game_vsComp extends View {
                         my_point_XO mp1 = new my_point_XO(fixedX, fixedY, paintPlayer[(compPlayerNum == 0) ? 1 : 0]);
                         list_of_points.add(mp1);
                         //change player
-                        PlayerVsComputer.computerXO(sheet,compPlayerNum,XY);
-                        sheet[XY[0]][XY[1]]=(compPlayerNum == 0) ? 1 : 5;
-                        fixedX=(float)(XY[0]*(0.30 * width)+(0.20 * width));
-                        fixedY=(float)(XY[1]*(0.20 * height)+(0.25 * height));
-                        mp1 = new my_point_XO(fixedX, fixedY, paintPlayer[compPlayerNum]);
-                        list_of_points.add(mp1);
-                        Log.d("debugTag", ""+sheet[0][0]+sheet[1][0]+sheet[2][0]);
-                        Log.d("debugTag", ""+sheet[0][1]+sheet[1][1]+sheet[2][1]);
-                        Log.d("debugTag", ""+sheet[0][2]+sheet[1][2]+sheet[2][2]);
-
-                        Log.d("debugTag", "  compPlayerNum  " + compPlayerNum + " XY[0] " + XY[0] + "   XY[1] " +XY[1] +"    line num " + Thread.currentThread().getStackTrace()[2].getLineNumber()  );
+                        curentPlay=(curentPlay == 1) ? 0 : 1;
                     }
-
-
                 }
-
                 break;
             case MotionEvent.ACTION_MOVE:
                 break;
@@ -151,5 +126,69 @@ public class draw_XO_Game_vsComp extends View {
         }
         invalidate();
         return true;
+    }
+
+    public class XO_background_task extends AsyncTask<Integer,Integer,Integer> {
+        @Override
+        protected Integer doInBackground(Integer... params) {
+            if(true)
+                while(true){
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        if(GamePlayerVsPlayerEngine.checkWinner(getContext(),sheet)){
+                            GamePlayerVsPlayerEngine.clearGame(list_of_points, sheet,firstPlay);
+                            try {
+                                Thread.sleep(3000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }else{
+
+                            if(curentPlay==compPlayerNum){
+                                PlayerVsComputer.computerXO(sheet,compPlayerNum,XY,firstPlay);
+                                sheet[XY[0]][XY[1]]=(compPlayerNum == 0) ? 1 : 5;
+                                fixedX=(float)(XY[0]*(0.30 * width)+(0.20 * width));
+                                fixedY=(float)(XY[1]*(0.20 * height)+(0.25 * height));
+                                mp1 = new my_point_XO(fixedX, fixedY, paintPlayer[compPlayerNum]);
+                                list_of_points.add(mp1);
+                                Log.d("debugTag", ""+sheet[0][0]+sheet[1][0]+sheet[2][0]);
+                                Log.d("debugTag", ""+sheet[0][1]+sheet[1][1]+sheet[2][1]);
+                                Log.d("debugTag", ""+sheet[0][2]+sheet[1][2]+sheet[2][2]);
+                                Log.d("debugTag", "  compPlayerNum  " + compPlayerNum + " XY[0] " + XY[0] + "   XY[1] " +XY[1] +"    line num " + Thread.currentThread().getStackTrace()[2].getLineNumber()  );
+                                curentPlay=(curentPlay == 1) ? 0 : 1;
+                            }
+                            if(GamePlayerVsPlayerEngine.checkWinner(getContext(),sheet)){
+                                GamePlayerVsPlayerEngine.clearGame(list_of_points, sheet,firstPlay);
+                                try {
+                                    Thread.sleep(3000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.d("debugTag", "  e.printStackTrace()  " + e.getMessage()  + "   line num " + Thread.currentThread().getStackTrace()[2].getLineNumber()  );
+                        e.printStackTrace();
+                    }
+                    publishProgress();
+                }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            invalidate();
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            super.onPostExecute(integer);
+
+        }
     }
 }

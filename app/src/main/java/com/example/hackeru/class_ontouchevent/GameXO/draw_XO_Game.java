@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,7 +19,6 @@ import java.util.Random;
  * Created by hackeru on 01/11/2015.
  */
 public class draw_XO_Game extends View {
-
 
     float cx, cy ,fixedX,fixedY;
     int[][] sheet = new int[3][3];
@@ -51,7 +51,6 @@ public class draw_XO_Game extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 //sheet of Game
-
         Paint gameSheet = new Paint();
         gameSheet.setColor(Color.RED);
         gameSheet.setStrokeWidth(10);
@@ -65,33 +64,18 @@ public class draw_XO_Game extends View {
         canvas.drawLine((float) 0.65 * width, (float) 0.15 * height, (float) 0.65 * width, (float) 0.75 * height, gameSheet);
         canvas.drawLine((float) 0.05 * width, (float) 0.35 * height, (float) 0.95 * width, (float) 0.35 * height, gameSheet);
         canvas.drawLine((float) 0.05 * width, (float) 0.55 * height, (float) 0.95 * width, (float) 0.55 * height, gameSheet);
-
-
 //filled sells
-
         for (int i = 0; i < list_of_points.size(); i++) {
             float centerX = list_of_points.get(i).getX();
             float centerY = list_of_points.get(i).getY();
             canvas.drawCircle(centerX, centerY, 100, list_of_points.get(i).getP());
         }
-        if(GamePlayerVsPlayerEngine.checkWinner(sheet, getContext())){
-        /*  try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }*/
-            GamePlayerVsPlayerEngine.clearGame(list_of_points, sheet,firstPlay);
-        }
-
-    }
+     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-
         int action = event.getActionMasked();
-
         switch (action) {
-
             case MotionEvent.ACTION_DOWN:
                 cx = event.getX();
                 cy = event.getY();
@@ -110,11 +94,8 @@ public class draw_XO_Game extends View {
                 Log.d("debugTag", ""+sheet[0][0]+sheet[1][0]+sheet[2][0]);
                 Log.d("debugTag", ""+sheet[0][1]+sheet[1][1]+sheet[2][1]);
                 Log.d("debugTag", ""+sheet[0][2]+sheet[1][2]+sheet[2][2]);
-
-
                 Log.d("debugTag", "line num " + Thread.currentThread().getStackTrace()[2].getLineNumber() + " nextPlay " + nextPlay );
                 Log.d("debugTag", "line num " + Thread.currentThread().getStackTrace()[2].getLineNumber() + " x " + x + "   y " + y);
-
                 break;
             case MotionEvent.ACTION_MOVE:
                 break;
@@ -127,5 +108,36 @@ public class draw_XO_Game extends View {
         }
         invalidate();
         return true;
+    }
+
+    public class XO_background_task extends AsyncTask<Integer,Integer,Integer> {
+        @Override
+        protected Integer doInBackground(Integer... params) {
+            if(true)
+                while(true){
+                    try {
+                        Thread.sleep(5);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if(GamePlayerVsPlayerEngine.checkWinner(getContext(),sheet)){
+                        GamePlayerVsPlayerEngine.clearGame(list_of_points, sheet,firstPlay);
+                        try {
+                            Thread.sleep(3000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        publishProgress();
+                    }
+                    publishProgress();
+                }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            invalidate();
+        }
     }
 }

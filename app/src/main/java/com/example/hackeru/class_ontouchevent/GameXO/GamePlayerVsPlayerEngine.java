@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class GamePlayerVsPlayerEngine {
 
-    public static boolean checkWinner(int[][] sheet, Context c) {
+    public static boolean checkWinner(Context c,int[][] sheet) {
         int counter=0;
         int[] sumArr = new int[8];
         sumArr[0] = sheet[0][0] + sheet[0][1] + sheet[0][2];
@@ -47,7 +47,6 @@ public class GamePlayerVsPlayerEngine {
         }
         return false;
     }
-
 
     public static void clearGame(List<my_point_XO> list_of_points,int[][] sheet,int firstPlay) {
         Log.d("debugTag", "line num " + Thread.currentThread().getStackTrace()[2].getLineNumber() + " CLEARED ");
