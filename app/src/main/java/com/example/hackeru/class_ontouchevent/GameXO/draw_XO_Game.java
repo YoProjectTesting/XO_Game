@@ -28,9 +28,7 @@ public class draw_XO_Game extends View {
     Paint[] paintPlayer = new Paint[2];
     Random r = new Random();
     int nextPlay = r.nextInt(1);
-    int firstPlay=nextPlay;
     String apearWinner="false";
-
 
     public draw_XO_Game(Context context, int width, int height) {
         super(context);
@@ -84,7 +82,7 @@ public class draw_XO_Game extends View {
                     Toast.makeText(getContext(), "The TEKO !!!", Toast.LENGTH_SHORT).show();
                     break;
             }
-            GamePlayerVsPlayerEngine.clearGame(list_of_points, sheet,firstPlay);
+            GamePlayerVsPlayerEngine.clearGame(list_of_points, sheet);
             apearWinner="false";
         }
         for (int i = 0; i < list_of_points.size(); i++) {

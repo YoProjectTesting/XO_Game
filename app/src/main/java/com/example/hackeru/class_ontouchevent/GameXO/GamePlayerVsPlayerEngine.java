@@ -37,7 +37,7 @@ public class GamePlayerVsPlayerEngine {
         if (counter==0) return "TEKO"; return "false";
     }
 
-    public static void clearGame(List<my_point_XO> list_of_points,int[][] sheet,int firstPlay) {
+    public static void clearGame(List<my_point_XO> list_of_points,int[][] sheet) {
         Log.d("debugTag", "line num " + Thread.currentThread().getStackTrace()[2].getLineNumber() + " CLEARED ");
 
         for (int i = 0; i < 3; i++) {
@@ -46,7 +46,7 @@ public class GamePlayerVsPlayerEngine {
             }
         }
         list_of_points.removeAll(list_of_points);
-        firstPlay=(firstPlay==0)?1:0;
+        draw_XO_Game_vsComp.firstPlay=(draw_XO_Game_vsComp.firstPlay==0)?1:0;
 
     }
 

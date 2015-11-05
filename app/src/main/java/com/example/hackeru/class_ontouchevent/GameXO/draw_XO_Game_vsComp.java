@@ -78,24 +78,7 @@ public class draw_XO_Game_vsComp extends View {
 
 //filled sells
         try {
-            if(!apearWinner.equals("false")){
-                switch(apearWinner){
-                    case "RED":
-                        Log.d("debugTag", "line num " + Thread.currentThread().getStackTrace()[2].getLineNumber() + " The RED player won!!! ");
-                        Toast.makeText(getContext(), "The RED player won!!!", Toast.LENGTH_SHORT).show();
-                        break;
-                    case "BLUE":
-                        Log.d("debugTag", "line num " + Thread.currentThread().getStackTrace()[2].getLineNumber() + " The BLUE player won!!! ");
-                        Toast.makeText(getContext(), "The BLUE player won!!!", Toast.LENGTH_SHORT).show();
-                        break;
-                    case "TEKO":
-                        Log.d("debugTag", "line num " + Thread.currentThread().getStackTrace()[2].getLineNumber() + " The TEKO!!! ");
-                        Toast.makeText(getContext(), "The TEKO !!!", Toast.LENGTH_SHORT).show();
-                        break;
-                }
-                GamePlayerVsPlayerEngine.clearGame(list_of_points, sheet,firstPlay);
-                apearWinner="false";
-            }
+
             for (int i = 0; i < list_of_points.size(); i++) {
                  centerX = list_of_points.get(i).getX();
                  centerY = list_of_points.get(i).getY();
@@ -117,21 +100,28 @@ public class draw_XO_Game_vsComp extends View {
             case MotionEvent.ACTION_DOWN:
                 cx = event.getX();
                 cy = event.getY();
-                if(cx>0.05 * width&&cx<0.95 * width&&cy>0.15 * height&&cy<0.75 * height)
-                if(!WAIT){
-                    x = (int) ((cx - (0.05 * width)) / (0.30 * width));
-                    y = (int) ((cy - (0.15 * height)) / (0.20 * height));
-                    if(sheet[x][y]==0){
-                        sheet[x][y]=(compPlayerNum == 1) ? 1 : 5;
-                        Log.d("debugTag", "  PlayerNum  " + ((compPlayerNum == 1) ? 0 : 1 )+ " PlayerX " + x + "   PlayerY " +y +"    line num " + Thread.currentThread().getStackTrace()[2].getLineNumber()  );
-
-                        fixedX=(float)(x*(0.30 * width)+(0.20 * width));
-                        fixedY=(float)(y*(0.20 * height)+(0.25 * height));
-                        my_point_XO mp1 = new my_point_XO(fixedX, fixedY, paintPlayer[(compPlayerNum == 0) ? 1 : 0]);
-                        list_of_points.add(mp1);
-                        //change player
-                        curentPlay=(curentPlay == 1) ? 0 : 1;
+                if(!apearWinner.equals("false"))
+                    {
+                        GamePlayerVsPlayerEngine.clearGame(list_of_points, sheet);
+                        apearWinner="false";
                     }
+                else {
+                    if (cx > 0.05 * width && cx < 0.95 * width && cy > 0.15 * height && cy < 0.75 * height)
+                        if (!WAIT) {
+                            x = (int) ((cx - (0.05 * width)) / (0.30 * width));
+                            y = (int) ((cy - (0.15 * height)) / (0.20 * height));
+                            if (sheet[x][y] == 0) {
+                                sheet[x][y] = (compPlayerNum == 1) ? 1 : 5;
+                                Log.d("debugTag", "  PlayerNum  " + ((compPlayerNum == 1) ? 0 : 1) + " PlayerX " + x + "   PlayerY " + y + "    line num " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+
+                                fixedX = (float) (x * (0.30 * width) + (0.20 * width));
+                                fixedY = (float) (y * (0.20 * height) + (0.25 * height));
+                                my_point_XO mp1 = new my_point_XO(fixedX, fixedY, paintPlayer[(compPlayerNum == 0) ? 1 : 0]);
+                                list_of_points.add(mp1);
+                                //change player
+                                curentPlay = (curentPlay == 1) ? 0 : 1;
+                            }
+                        }
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -147,9 +137,9 @@ public class draw_XO_Game_vsComp extends View {
         return true;
     }
 
-    public class XO_background_task extends AsyncTask<Integer,Integer,Integer> {
+    public class XO_background_task extends AsyncTask<String,String,String> {
         @Override
-        protected Integer doInBackground(Integer... params) {
+        protected String doInBackground(String... params) {
             if(true)
                 while(true){
                     try {
@@ -158,6 +148,7 @@ public class draw_XO_Game_vsComp extends View {
                         e.printStackTrace();
                     }
                     try {
+
                         if(!(apearWinner=GamePlayerVsPlayerEngine.checkWinner(sheet)).equals("false")){
                             try {
                                 WAIT=true;
@@ -166,8 +157,8 @@ public class draw_XO_Game_vsComp extends View {
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
-                            Log.d("debugTag", " apearWinner.equals(\"RED\")   " + apearWinner.equals("RED")  + "   line num " + Thread.currentThread().getStackTrace()[2].getLineNumber()  );
-
+//                            Log.d("debugTag", " apearWinner.equals(\"RED\")   " + apearWinner.equals("RED") + "   line num " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+                            publishProgress(apearWinner);
                         }else{
 
                             if(curentPlay==compPlayerNum){
@@ -177,11 +168,12 @@ public class draw_XO_Game_vsComp extends View {
                                 fixedY=(float)(XY[1]*(0.20 * height)+(0.25 * height));
                                 mp1 = new my_point_XO(fixedX, fixedY, paintPlayer[compPlayerNum]);
                                 list_of_points.add(mp1);
-                                Log.d("debugTag", ""+sheet[0][0]+sheet[1][0]+sheet[2][0]);
+                                Log.d("debugTag", "" + sheet[0][0] + sheet[1][0] + sheet[2][0]);
                                 Log.d("debugTag", ""+sheet[0][1]+sheet[1][1]+sheet[2][1]);
                                 Log.d("debugTag", ""+sheet[0][2]+sheet[1][2]+sheet[2][2]);
-                                Log.d("debugTag", "  compPlayerNum  " + compPlayerNum + " XY[0] " + XY[0] + "   XY[1] " +XY[1] +"    line num " + Thread.currentThread().getStackTrace()[2].getLineNumber()  );
+                                Log.d("debugTag", "  compPlayerNum BLUE(5)= " + compPlayerNum +"  firstPlay  " + firstPlay + " XY[0] " + XY[0] + "   XY[1] " +XY[1] +"    line num " + Thread.currentThread().getStackTrace()[2].getLineNumber()  );
                                 curentPlay=(curentPlay == 1) ? 0 : 1;
+                                publishProgress("false");
                             }
                             if(!(apearWinner=GamePlayerVsPlayerEngine.checkWinner(sheet)).equals("false")){
                                 try {
@@ -191,22 +183,44 @@ public class draw_XO_Game_vsComp extends View {
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
-                                Log.d("debugTag", " apearWinner.equals(\"BLUE\")   " + apearWinner.equals("BLUE")  + "   line num " + Thread.currentThread().getStackTrace()[2].getLineNumber()  );
+//                                Log.d("debugTag", " apearWinner.equals(\"BLUE\")   " + apearWinner.equals("BLUE") + "   line num " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+                                publishProgress(apearWinner);
                             }
                         }
                     } catch (Exception e) {
                         Log.d("debugTag", "  getMessage   " + e.getMessage()  + "   line num " + Thread.currentThread().getStackTrace()[2].getLineNumber()  );
                         e.printStackTrace();
                     }
-                    publishProgress();
                 }
+//            publishProgress();
             return null;
         }
 
         @Override
-        protected void onProgressUpdate(Integer... values) {
+        protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
-            invalidate();
+            try {
+                if(!values[0].equals("false")){
+                    switch(values[0]){
+                        case "RED":
+                            Log.d("debugTag", "line num " + Thread.currentThread().getStackTrace()[2].getLineNumber() + " The RED player won!!! ");
+                            Toast.makeText(getContext(), "The RED player won!!!", Toast.LENGTH_SHORT).show();
+                            break;
+                        case "BLUE":
+                            Log.d("debugTag", "line num " + Thread.currentThread().getStackTrace()[2].getLineNumber() + " The BLUE player won!!! ");
+                            Toast.makeText(getContext(), "The BLUE player won!!!", Toast.LENGTH_SHORT).show();
+                            break;
+                        case "TEKO":
+                            Log.d("debugTag", "line num " + Thread.currentThread().getStackTrace()[2].getLineNumber() + " The TEKO!!! ");
+                            Toast.makeText(getContext(), "The TEKO !!!", Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                }
+                invalidate();
+            } catch (Exception e) {
+                Log.d("debugTag", "  getMessage   " + e.getMessage() + "   line num " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+            }
+
         }
 
 
