@@ -24,7 +24,7 @@ public class PlayerVsComputer {
                 sum+=sheet[i][j];
             }
         }
-        if((sum==7&&draw_XO_Game_vsComp.firstPlay==0)&&(sheet[0][1]==0&&sheet[1][0]==0&&sheet[2][1]==0&&sheet[1][2]==0)){
+        if((sum==7&& draw_XO_Game_vsComp.firstPlay==0)&&(sheet[0][1]==0&&sheet[1][0]==0&&sheet[2][1]==0&&sheet[1][2]==0)){
             if(sheet[0][1]==0)temp[counter++]=0;
             if(sheet[1][0]==0)temp[counter++]=1;
             if(sheet[1][2]==0)temp[counter++]=2;
@@ -36,7 +36,7 @@ public class PlayerVsComputer {
                     case 2:{XY[0]=1;XY[1]=2;}break;
                     case 3:{XY[0]=2;XY[1]=1;}break;
                 }
-                Log.d("debugTag","checkTrickRisk true:  firstPlay  "+draw_XO_Game_vsComp.firstPlay+ "line num " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+                Log.d("debugTag","checkTrickRisk true:  firstPlay  "+ draw_XO_Game_vsComp.firstPlay+ "line num " + Thread.currentThread().getStackTrace()[2].getLineNumber());
                 return true;
             }
         }

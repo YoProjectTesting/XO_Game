@@ -23,6 +23,7 @@ import java.util.Random;
  */
 public class draw_XO_Game_vsComp extends View {
 
+    public static XO_background_task XO_back;
     float cx, cy ,fixedX,fixedY,centerX,centerY;
     int[][] sheet = new int[3][3]; int[] XY =new int []{-1,-1};
     int width, height, x, y;
@@ -30,15 +31,24 @@ public class draw_XO_Game_vsComp extends View {
     my_point_XO mp1;
     Paint[] paintPlayer = new Paint[2];
     static Random r = new Random();
-    static int firstPlay = r.nextInt(2);
-    int curentPlay=firstPlay;
-    String apearWinner="false";Boolean WAIT=false;
+    static int firstPlay ;
+    int curentPlay;
+    String apearWinner;Boolean WAIT,ToastWait;
     int compPlayerNum = 1;//Player-RED-1   vs   Computer-BLUE-5
+
 
     public draw_XO_Game_vsComp(Context context, int width, int height) {
         super(context);
         this.width = width;
         this.height = height;
+
+        XY =new int []{-1,-1};
+        list_of_points = new ArrayList<my_point_XO>();
+        firstPlay = r.nextInt(2);
+        int curentPlay=firstPlay;
+        apearWinner="false";WAIT=false;
+        compPlayerNum = 1;//Player-RED-1   vs   Computer-BLUE-5
+        ToastWait=false;
 
       //Paint Initialization
         paintPlayer[0] = new Paint();
@@ -51,8 +61,10 @@ public class draw_XO_Game_vsComp extends View {
                 sheet[i][j]=0;
             }
         }
-        XO_background_task XO_back=new XO_background_task();
+        XO_back=new XO_background_task();
         XO_back.execute();
+        Log.d("debugTag", "   draw_XO_Game_vsComp constructor()  called   " + this.getClass() + "  line num  " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+
     }
 
     @Override
@@ -104,6 +116,7 @@ public class draw_XO_Game_vsComp extends View {
                     {
                         GamePlayerVsPlayerEngine.clearGame(list_of_points, sheet);
                         apearWinner="false";
+                        ToastWait=false;
                     }
                 else {
                     if (cx > 0.05 * width && cx < 0.95 * width && cy > 0.15 * height && cy < 0.75 * height)
@@ -138,10 +151,13 @@ public class draw_XO_Game_vsComp extends View {
     }
 
     public class XO_background_task extends AsyncTask<String,String,String> {
+        int version=0;
+
         @Override
         protected String doInBackground(String... params) {
+            version++;
             if(true)
-                while(true){
+                while(!isCancelled()){
                     try {
                         Thread.sleep(10);
                     } catch (InterruptedException e) {
@@ -152,16 +168,22 @@ public class draw_XO_Game_vsComp extends View {
                         if(!(apearWinner=GamePlayerVsPlayerEngine.checkWinner(sheet)).equals("false")){
                             try {
                                 WAIT=true;
-                                Thread.sleep(3000);
+                                Thread.sleep(500);
                                 WAIT=false;
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
-//                            Log.d("debugTag", " apearWinner.equals(\"RED\")   " + apearWinner.equals("RED") + "   line num " + Thread.currentThread().getStackTrace()[2].getLineNumber());
                             publishProgress(apearWinner);
                         }else{
 
                             if(curentPlay==compPlayerNum){
+                                try {
+                                    WAIT=true;
+                                    Thread.sleep(1000);
+                                    WAIT=false;
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
                                 PlayerVsComputer.computerXO(sheet,compPlayerNum,XY);
                                 sheet[XY[0]][XY[1]]=(compPlayerNum == 0) ? 1 : 5;
                                 fixedX=(float)(XY[0]*(0.30 * width)+(0.20 * width));
@@ -178,12 +200,11 @@ public class draw_XO_Game_vsComp extends View {
                             if(!(apearWinner=GamePlayerVsPlayerEngine.checkWinner(sheet)).equals("false")){
                                 try {
                                     WAIT=true;
-                                    Thread.sleep(3000);
+                                    Thread.sleep(500);
                                     WAIT=false;
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
-//                                Log.d("debugTag", " apearWinner.equals(\"BLUE\")   " + apearWinner.equals("BLUE") + "   line num " + Thread.currentThread().getStackTrace()[2].getLineNumber());
                                 publishProgress(apearWinner);
                             }
                         }
@@ -200,19 +221,22 @@ public class draw_XO_Game_vsComp extends View {
         protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
             try {
-                if(!values[0].equals("false")){
+                if(!values[0].equals("false")&&!ToastWait){
                     switch(values[0]){
                         case "RED":
                             Log.d("debugTag", "line num " + Thread.currentThread().getStackTrace()[2].getLineNumber() + " The RED player won!!! ");
                             Toast.makeText(getContext(), "The RED player won!!!", Toast.LENGTH_SHORT).show();
+                            ToastWait=true;
                             break;
                         case "BLUE":
                             Log.d("debugTag", "line num " + Thread.currentThread().getStackTrace()[2].getLineNumber() + " The BLUE player won!!! ");
                             Toast.makeText(getContext(), "The BLUE player won!!!", Toast.LENGTH_SHORT).show();
+                            ToastWait=true;
                             break;
                         case "TEKO":
                             Log.d("debugTag", "line num " + Thread.currentThread().getStackTrace()[2].getLineNumber() + " The TEKO!!! ");
                             Toast.makeText(getContext(), "The TEKO !!!", Toast.LENGTH_SHORT).show();
+                            ToastWait=true;
                             break;
                     }
                 }
